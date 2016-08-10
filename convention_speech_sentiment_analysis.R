@@ -1,6 +1,6 @@
 # An R project performing sentiment analysis on Republican and Democratic
 # National Convention speeches
-# 08.01.2016
+# 08.09.2016
 
 # Speeches obtained from The American Presidency Project:
 # http://www.presidency.ucsb.edu/nomination.php
@@ -10,6 +10,7 @@
 
 
 library(dplyr)
+library(tokenizers)
 library(stringr)
 library(readr)
 library(syuzhet)
@@ -22,26 +23,12 @@ library(lme4)
 # Define functions used in downstream analysis
 
 
-# Remove blank vector elements from a character vector
-remove_blanks <- function(text) {
-  
-  indexes <- sapply(1:length(text), 
-                    function(x) str_length(text[x]) > 0)
-  text[indexes]
-}
-
-
-# Take a raw speech as a text file and import it into R, returning a vector
-# with blanks removed and all individual words as a vector element
-# Note: str_split() returns a list every time, which is why unlist() is needed
-# to convert that output into a vector each time
+# Take a raw speech as a text file and import it into R, returning a 
+# character vector tokenized by word
 process_speech <- function(rawspeech) {
   
   read_file(rawspeech) %>%
-    str_split("\n") %>%
-    unlist() %>%
-    remove_blanks() %>% 
-    str_split(" ") %>%
+    tokenize_words() %>%
     unlist()
 }
 
@@ -82,8 +69,8 @@ plot_sentiment <- function(mySentiment) {
     labs(y = "Sentiment", size = 2) +
     geom_bar(stat = "identity", fill = color.vec) + 
     # geom_segment(data = myAnnotate, aes(x = x, y = y1, xend = x, yend = y2),
-                 # arrow = arrow(length = unit(0.04, "npc")), 
-                 # inherit.aes = FALSE) +
+    # arrow = arrow(length = unit(0.04, "npc")), 
+    # inherit.aes = FALSE) +
     theme_minimal() +
     scale_x_discrete(expand=c(0.02,0)) +
     coord_cartesian(ylim = c(-15, 15)) +
@@ -403,10 +390,10 @@ trump_16.sentiment.nrc <- process_sentiment(trump_16_speech, "nrc")
 png(filename = "plots/trump_16.png", width = 600, height = 500)
 p.trump_16 <- plot_sentiment(trump_16.sentiment.bing)
 myAnnotate <- 
-  data.frame(x = c(11, 47), y = rep(14, 2), 
+  data.frame(x = c(11, 46), y = rep(14, 2), 
              label = c('"death, destruction, terrorism, and weakness"', 
                        "Mentions children, wife, father"), 
-             y1 = rep(13.5, 2), y2 = c(0.2, 11.2))
+             y1 = rep(13.5, 2), y2 = c(0.2, 10.2))
 p.trump_16 +
   labs(title = "Sentiment in Trump's 2016 RNC Speech ('bing' Method)") +
   geom_label(data = myAnnotate, aes(x, y, label = label), hjust = 0.5, 
@@ -551,7 +538,7 @@ colnames(d.nrc) <-
 png(filename = "plots/speeches_regression_bing.png", 
     width = 600, height = 500)
 myAnnotate <- 
-  data.frame(x = c(1988, 2012, 2012, 2015.5), y = c(3.3, 0.9, 3.54, 0.41), 
+  data.frame(x = c(1988, 2012, 2012, 2015.5), y = c(3.35, 0.83, 3.6, 0.38), 
              label = c("M. Dukakis", "B. Obama", "M. Romney", "D. Trump"), 
              y1 = rep(13.5, 2), y2 = c(0.2, 8.2))
 ggplot(data = d.bing, aes(x = Year, y = Sentiment)) +
@@ -572,7 +559,7 @@ dev.off()
 png(filename = "plots/speeches_regression_afinn.png", 
     width = 600, height = 500)
 myAnnotate <- 
-  data.frame(x = c(1984, 1988, 2012, 2015.5), y = c(2.54, 7, 6.23, -0.1), 
+  data.frame(x = c(1984, 1988, 2012, 2015.5), y = c(1.5, 7.26, 6.3, 0), 
              label = c("W. Mondale", "M. Dukakis", "M. Romney", "D. Trump"), 
              y1 = rep(13.5, 2), y2 = c(0.2, 8.2))
 ggplot(data = d.afinn, aes(x = Year, y = Sentiment)) +
@@ -593,7 +580,7 @@ dev.off()
 png(filename = "plots/speeches_regression_nrc.png", 
     width = 600, height = 500)
 myAnnotate <- 
-  data.frame(x = c(1988, 1992, 2004, 2008), y = c(5.04, 0.78, 5.52, 1.91), 
+  data.frame(x = c(1988, 1992, 2004, 2008), y = c(5.29, 0.7, 5.57, 1.84), 
              label = c("M. Dukakis", "G. H. W. Bush", 
                        "G. W. Bush", "B. Obama"), 
              y1 = rep(13.5, 2), y2 = c(0.2, 8.2))

@@ -1,13 +1,14 @@
 ---
 title: "Republican and Democratic National Convention Speech Sentiment Analysis"
 author: Evan Eskew (eaeskew@ucdavis.edu) and Brian Todd (btodd@ucdavis.edu)
-date: 01 August 2016
+date: 09 August 2016
 output: pdf_document
 ---
 ```{r, include = F}
 
 
 library(dplyr)
+library(tokenizers)
 library(stringr)
 library(readr)
 library(syuzhet)
@@ -20,26 +21,12 @@ library(lme4)
 # Define functions used in downstream analysis
 
 
-# Remove blank vector elements from a character vector
-remove_blanks <- function(text) {
-  
-  indexes <- sapply(1:length(text), 
-                    function(x) str_length(text[x]) > 0)
-  text[indexes]
-}
-
-
-# Take a raw speech as a text file and import it into R, returning a vector
-# with blanks removed and all individual words as a vector element
-# Note: str_split() returns a list every time, which is why unlist() is needed
-# to convert that output into a vector each time
+# Take a raw speech as a text file and import it into R, returning a 
+# character vector tokenized by word
 process_speech <- function(rawspeech) {
   
   read_file(rawspeech) %>%
-    str_split("\n") %>%
-    unlist() %>%
-    remove_blanks() %>% 
-    str_split(" ") %>%
+    tokenize_words() %>%
     unlist()
 }
 
@@ -267,7 +254,7 @@ trump_16.sentiment.nrc <- process_sentiment(trump_16_speech, "nrc")
 
 p.trump_16 <- plot_sentiment(trump_16.sentiment.bing)
 myAnnotate <- 
-  data.frame(x = c(11, 47), y = rep(14, 2), 
+  data.frame(x = c(11, 46), y = rep(14, 2), 
              label = c('"death, destruction, terrorism, and weakness"', 
                        "Mentions children, wife, father"), 
              y1 = rep(13, 2), y2 = c(0.2, 11.2))
@@ -429,7 +416,7 @@ colnames(d.nrc) <-
 # Mean speech sentiment over time ('bing' method)
 
 myAnnotate <- 
-  data.frame(x = c(1988, 2012, 2012, 2015.5), y = c(3.3, 0.9, 3.54, 0.41), 
+  data.frame(x = c(1988, 2012, 2012, 2015.5), y = c(3.35, 0.83, 3.6, 0.38), 
              label = c("M. Dukakis", "B. Obama", "M. Romney", "D. Trump"), 
              y1 = rep(13.5, 2), y2 = c(0.2, 8.2))
 ggplot(data = d.bing, aes(x = Year, y = Sentiment)) +
@@ -441,7 +428,7 @@ ggplot(data = d.bing, aes(x = Year, y = Sentiment)) +
   theme_bw() +
   coord_cartesian(ylim = c(0, 4)) +
   geom_label(data = myAnnotate, aes(x, y, label = label), hjust = 0.5, 
-             label.size = 0, size = 2.8, color="#2b2b2b", 
+             label.size = 0, size = 3.5, color="#2b2b2b", 
              inherit.aes = FALSE)
 ```
 
@@ -452,7 +439,7 @@ Just to double (and triple) check ourselves, we also repeated this analysis usin
 # Mean speech sentiment over time ('afinn' method)
 
 myAnnotate <- 
-  data.frame(x = c(1984, 1988, 2012, 2015.5), y = c(2.54, 7, 6.23, -0.1), 
+  data.frame(x = c(1984, 1988, 2012, 2015.5), y = c(1.5, 7.26, 6.3, 0), 
              label = c("W. Mondale", "M. Dukakis", "M. Romney", "D. Trump"), 
              y1 = rep(13.5, 2), y2 = c(0.2, 8.2))
 ggplot(data = d.afinn, aes(x = Year, y = Sentiment)) +
@@ -464,7 +451,7 @@ ggplot(data = d.afinn, aes(x = Year, y = Sentiment)) +
   theme_bw() +
   coord_cartesian(ylim = c(0, 8)) +
   geom_label(data = myAnnotate, aes(x, y, label = label), hjust = 0.5, 
-             label.size = 0, size = 2.8, color="#2b2b2b", 
+             label.size = 0, size = 3.5, color="#2b2b2b", 
              inherit.aes = FALSE)
 ```
   
@@ -473,7 +460,7 @@ ggplot(data = d.afinn, aes(x = Year, y = Sentiment)) +
 # Mean speech sentiment over time ('nrc' method)
 
 myAnnotate <- 
-  data.frame(x = c(1988, 1992, 2004, 2008), y = c(5.04, 0.78, 5.52, 1.91), 
+  data.frame(x = c(1988, 1992, 2004, 2008), y = c(5.29, 0.7, 5.57, 1.84), 
              label = c("M. Dukakis", "G. H. W. Bush", 
                        "G. W. Bush", "B. Obama"), 
              y1 = rep(13.5, 2), y2 = c(0.2, 8.2))
@@ -486,7 +473,7 @@ ggplot(data = d.nrc, aes(x = Year, y = Sentiment)) +
   theme_bw() +
   coord_cartesian(ylim = c(0, 6)) +
   geom_label(data = myAnnotate, aes(x, y, label = label), hjust = 0.5, 
-             label.size = 0, size = 2.8, color="#2b2b2b", 
+             label.size = 0, size = 3.5, color="#2b2b2b", 
              inherit.aes = FALSE)
 ```
 
