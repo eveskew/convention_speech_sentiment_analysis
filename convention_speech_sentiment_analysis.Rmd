@@ -257,7 +257,7 @@ myAnnotate <-
   data.frame(x = c(11, 46), y = rep(14, 2), 
              label = c('"death, destruction, terrorism, and weakness"', 
                        "Mentions children, wife, father"), 
-             y1 = rep(13, 2), y2 = c(0.2, 11.2))
+             y1 = rep(13, 2), y2 = c(0.2, 10.2))
 p.trump_16 +
   labs(title = "Sentiment in Trump's 2016 RNC Speech ('bing' Method)") +
   geom_label(data = myAnnotate, aes(x, y, label = label), hjust = 0.5, 
@@ -284,7 +284,7 @@ myAnnotate <-
   data.frame(x = c(11, 15.5), y = c(14, 12), 
              label = c("Refuting Trump RNC claims", 
                        '"love trumps hate"'), 
-             y1 = c(13, 11.5), y2 = c(0.2, 9.2))
+             y1 = c(13, 11), y2 = c(0.2, 9.2))
 p.clinton_h_16 <- plot_sentiment(clinton_h_16.sentiment.bing)
 p.clinton_h_16 +
   labs(title = "Sentiment in Clinton's 2016 DNC Speech ('bing' Method)") +
